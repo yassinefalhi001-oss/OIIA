@@ -77,7 +77,7 @@
     <div class="section"><strong>Session &amp; Lien invité</strong><div class="btn-row"><button class="mini-btn" id="copyFriendLink">Copier le lien invité</button><button class="mini-btn" id="newRoomBtn">Nouvelle session</button><button class="mini-btn" id="clearChat">Effacer le chat</button></div><input type="text" class="link-fallback" id="friendLinkField" readonly aria-label="Lien invité"><div class="room-badge" id="roomInfo">Session : chargement...</div></div>
     <div class="section"><strong>Derniers messages reçus</strong><div class="incoming-box" id="incomingList">Aucun message envoyé pour l'instant.</div></div>
     <div class="section"><strong>Mise en scène</strong><div class="btn-row"><button class="mini-btn" id="simTyping">Simuler "Écrit..."</button><button class="mini-btn" id="shakeCat">Faire vibrer le chat</button></div></div>
-    <div class="section"><strong>Réponses rapides absurdes</strong><div class="btn-row" id="quickReplies"></div></div>
+    <div class="section"><strong>Réponses rapides IA</strong><div class="btn-row" id="quickReplies"></div></div>
     <div class="section"><strong>Réponse personnalisée</strong><textarea class="reply-area" id="customReply" placeholder="Tape ta réponse en direct ici..."></textarea><div class="btn-row"><button class="mini-btn primary" id="sendCustomReply">Envoyer en tant qu'OIIA</button></div></div>
   </aside>
 
@@ -111,7 +111,11 @@
       "Ma réponse est prête : je peux t'aider à analyser cette demande et à trouver une solution claire.",
       "Je détecte plusieurs pistes. Partage davantage de détails pour que je puisse te répondre précisément.",
       "Selon les données disponibles, voici une réponse fiable : reformule l'objectif en une phrase simple.",
-      "Je suis en train de traiter ta demande, merci de patienter quelques instants pendant que j'organise les informations."
+      "Je suis en train de traiter ta demande, merci de patienter quelques instants pendant que j'organise les informations.",
+      "Analyse terminée : commençons par définir clairement ton objectif, puis les contraintes à respecter.",
+      "Je peux t'expliquer cette idée simplement, te proposer des solutions ou rédiger un plan concret.",
+      "Pour obtenir une réponse optimale, indique-moi le contexte, tes contraintes et le résultat attendu.",
+      "Plusieurs approches sont possibles. Je peux te présenter les avantages et les limites de chacune."
     ];
 
     function randomRoomId() { const chars="abcdefghjkmnpqrstuvwxyz23456789"; let out=""; for(let i=0;i<10;i++) out+=chars[Math.floor(Math.random()*chars.length)]; return out; }
