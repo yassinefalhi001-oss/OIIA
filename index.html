@@ -5,56 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OIIA — L'Intelligence Artificielle la moins prévisible</title>
   <style>
-    :root { --bg:#070709; --card:#111116; --card2:#181820; --border:rgba(255,255,255,.09); --text:#f5f5f7; --muted:#9a9aa6; --accent:#ff5e3a; --accent2:#a855f7; --ok:#22c55e; --warn:#f59e0b; }
-    * { box-sizing:border-box; margin:0; padding:0; }
-    body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; }
-    .topbar { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid var(--border); background:rgba(10,10,14,.92); backdrop-filter:blur(12px); position:sticky; top:0; z-index:20; gap:8px; }
-    .brand { display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.04em; cursor:pointer; user-select:none; }
-    .brand-badge { width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:grid; place-items:center; font-size:18px; }
-    .modes { display:inline-flex; background:var(--card); border:1px solid var(--border); border-radius:999px; padding:4px; gap:4px; }
-    .mode-btn { border:none; background:transparent; color:var(--muted); padding:6px 14px; border-radius:999px; font-size:13px; font-weight:600; cursor:pointer; }
-    .mode-btn.active { background:var(--text); color:#09090b; }
-    .regie-btn { background:transparent; color:var(--muted); border:1px solid transparent; padding:8px 12px; border-radius:9px; font-size:16px; font-weight:900; cursor:pointer; }
-    .regie-btn:hover { border-color:var(--border); color:var(--text); }
-    .container { width:100%; max-width:780px; margin:0 auto; padding:28px 18px 110px; flex:1; display:flex; flex-direction:column; gap:20px; }
-    .hero { text-align:center; padding:16px 0 8px; }
-    .hero h1 { font-size:clamp(28px,5vw,44px); line-height:1.12; font-weight:900; margin-bottom:14px; }
-    .hero h1 span { background:linear-gradient(90deg,var(--accent),#fb923c,var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-    .cat-stage { width:150px; height:150px; margin:8px auto 6px; border-radius:28px; background:var(--card); border:1px solid var(--border); display:grid; place-items:center; font-size:74px; transition:transform .25s ease; }
-    .cat-stage.shake { animation:shake .45s ease; }
-    @keyframes shake { 0%,100%{transform:translateX(0) rotate(0)} 25%{transform:translateX(-8px) rotate(-4deg)} 75%{transform:translateX(8px) rotate(4deg)} }
-    .status-pill { display:inline-flex; align-items:center; gap:7px; font-size:12px; color:var(--muted); background:var(--card); border:1px solid var(--border); padding:5px 12px; border-radius:999px; }
-    .dot { width:8px; height:8px; border-radius:50%; background:var(--ok); }
-    .dot.warn { background:var(--warn); }
-    .chat-box { display:flex; flex-direction:column; gap:12px; }
-    .msg { max-width:82%; padding:13px 16px; border-radius:18px; line-height:1.45; font-size:15px; white-space:pre-wrap; }
-    .msg.user { align-self:flex-end; background:#2563eb; color:#fff; border-bottom-right-radius:5px; }
-    .msg.bot { align-self:flex-start; background:var(--card); border:1px solid var(--border); color:var(--text); border-bottom-left-radius:5px; }
-    .msg-meta { font-size:11px; color:var(--muted); margin-bottom:4px; font-weight:700; }
-    .typing { align-self:flex-start; background:var(--card); border:1px solid var(--border); padding:12px 16px; border-radius:16px; font-size:13px; color:var(--muted); display:none; }
-    .typing.visible { display:block; }
-    .composer-wrap { position:fixed; bottom:0; left:0; right:0; padding:14px 18px 20px; background:linear-gradient(to top,var(--bg) 70%,transparent); }
-    .composer { max-width:780px; margin:0 auto; display:flex; gap:10px; background:var(--card); border:1px solid var(--border); border-radius:16px; padding:8px 10px 8px 16px; }
-    .composer input { flex:1; min-width:0; background:transparent; border:none; color:var(--text); font-size:15px; outline:none; }
-    .send-btn { background:var(--text); color:#09090b; border:none; border-radius:11px; padding:9px 16px; font-weight:800; cursor:pointer; }
-    .pin-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:50; align-items:center; justify-content:center; padding:16px; }
-    .pin-modal.open { display:flex; }
-    .pin-card { width:100%; max-width:320px; background:#14141c; border:1px solid rgba(255,255,255,.2); border-radius:16px; padding:18px; display:flex; flex-direction:column; gap:10px; }
-    .pin-card h3 { font-size:15px; }
-    .pin-input { width:100%; padding:9px 12px; border-radius:10px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:14px; }
-    .drawer { display:none; position:fixed; top:64px; right:16px; width:min(430px,calc(100vw - 32px)); max-height:calc(100vh - 84px); overflow-y:auto; background:#121218; border:1px solid rgba(255,255,255,.18); border-radius:18px; padding:18px; z-index:40; box-shadow:0 20px 50px rgba(0,0,0,.65); }
-    .drawer.open { display:block; }
-    .drawer h2 { font-size:16px; margin-bottom:4px; }
-    .drawer p.sub { font-size:12px; color:var(--muted); margin-bottom:14px; }
-    .section { margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid var(--border); }
-    .section:last-child { border-bottom:none; margin-bottom:0; }
-    .btn-row { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
-    .mini-btn { background:var(--card2); color:var(--text); border:1px solid var(--border); border-radius:9px; padding:7px 11px; font-size:12px; font-weight:600; cursor:pointer; }
-    .mini-btn.primary { background:var(--accent); color:#fff; border:none; }
-    .reply-area { width:100%; min-height:76px; background:var(--bg); color:var(--text); border:1px solid var(--border); border-radius:10px; padding:10px; font-size:13px; margin-top:8px; resize:vertical; }
-    .link-fallback { width:100%; margin-top:8px; background:var(--bg); color:var(--text); border:1px solid var(--border); border-radius:9px; padding:7px 10px; font-size:12px; }
-    .room-badge { font-size:11px; color:var(--muted); margin-top:6px; line-height:1.4; }
-    .incoming-box { background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:10px; font-size:12px; max-height:130px; overflow-y:auto; color:var(--muted); }
+    :root{--bg:#070709;--card:#111116;--card2:#181820;--border:rgba(255,255,255,.09);--text:#f5f5f7;--muted:#9a9aa6;--accent:#ff5e3a;--accent2:#a855f7;--ok:#22c55e;--warn:#f59e0b}
+    *{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);background:rgba(10,10,14,.92);backdrop-filter:blur(12px);position:sticky;top:0;z-index:20;gap:8px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.04em;cursor:pointer;user-select:none}.brand-badge{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-size:18px}
+    .modes{display:inline-flex;background:var(--card);border:1px solid var(--border);border-radius:999px;padding:4px;gap:4px}.mode-btn{border:none;background:transparent;color:var(--muted);padding:6px 14px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer}.mode-btn.active{background:var(--text);color:#09090b}
+    .regie-btn{background:transparent;color:var(--muted);border:1px solid transparent;padding:8px 12px;border-radius:9px;font-size:16px;font-weight:900;cursor:pointer}.regie-btn:hover{border-color:var(--border);color:var(--text)}
+    .container{width:100%;max-width:780px;margin:0 auto;padding:28px 18px 110px;flex:1;display:flex;flex-direction:column;gap:20px}.hero{text-align:center;padding:16px 0 8px}.hero h1{font-size:clamp(28px,5vw,44px);line-height:1.12;font-weight:900;margin-bottom:14px}.hero h1 span{background:linear-gradient(90deg,var(--accent),#fb923c,var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .cat-stage{width:150px;height:150px;margin:8px auto 6px;border-radius:28px;background:var(--card);border:1px solid var(--border);display:grid;place-items:center;font-size:74px;transition:transform .25s ease}.cat-stage.shake{animation:shake .45s ease}@keyframes shake{0%,100%{transform:translateX(0) rotate(0)}25%{transform:translateX(-8px) rotate(-4deg)}75%{transform:translateX(8px) rotate(4deg)}}
+    .status-pill{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);background:var(--card);border:1px solid var(--border);padding:5px 12px;border-radius:999px}.dot{width:8px;height:8px;border-radius:50%;background:var(--ok)}.dot.warn{background:var(--warn)}
+    .chat-box{display:flex;flex-direction:column;gap:12px}.msg{max-width:82%;padding:13px 16px;border-radius:18px;line-height:1.45;font-size:15px;white-space:pre-wrap;overflow-wrap:anywhere}.msg.user{align-self:flex-end;background:#2563eb;color:#fff;border-bottom-right-radius:5px}.msg.bot{align-self:flex-start;background:var(--card);border:1px solid var(--border);color:var(--text);border-bottom-left-radius:5px}.msg-meta{font-size:11px;color:var(--muted);margin-bottom:4px;font-weight:700}
+    .typing{align-self:flex-start;background:var(--card);border:1px solid var(--border);padding:12px 16px;border-radius:16px;font-size:13px;color:var(--muted);display:none}.typing.visible{display:block}.composer-wrap{position:fixed;bottom:0;left:0;right:0;padding:14px 18px 20px;background:linear-gradient(to top,var(--bg) 70%,transparent)}.composer{max-width:780px;margin:0 auto;display:flex;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:8px 10px 8px 16px}.composer input{flex:1;min-width:0;background:transparent;border:none;color:var(--text);font-size:15px;outline:none}.send-btn{background:var(--text);color:#09090b;border:none;border-radius:11px;padding:9px 16px;font-weight:800;cursor:pointer}
+    .pin-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:50;align-items:center;justify-content:center;padding:16px}.pin-modal.open{display:flex}.pin-card{width:100%;max-width:320px;background:#14141c;border:1px solid rgba(255,255,255,.2);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px}.pin-card h3{font-size:15px}.pin-input{width:100%;padding:9px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:14px}
+    .drawer{display:none;position:fixed;top:64px;right:16px;width:min(430px,calc(100vw - 32px));max-height:calc(100vh - 84px);overflow-y:auto;background:#121218;border:1px solid rgba(255,255,255,.18);border-radius:18px;padding:18px;z-index:40;box-shadow:0 20px 50px rgba(0,0,0,.65)}.drawer.open{display:block}.drawer h2{font-size:16px;margin-bottom:4px}.drawer p.sub{font-size:12px;color:var(--muted);margin-bottom:14px}.section{margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border)}.section:last-child{border-bottom:none;margin-bottom:0}.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.mini-btn{background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:9px;padding:7px 11px;font-size:12px;font-weight:600;cursor:pointer}.mini-btn.primary{background:var(--accent);color:#fff;border:none}.reply-area{width:100%;min-height:76px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px;font-size:13px;margin-top:8px;resize:vertical}.link-fallback{width:100%;margin-top:8px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:9px;padding:7px 10px;font-size:12px}.room-badge{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.4}.incoming-box{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px;font-size:12px;max-height:130px;overflow-y:auto;color:var(--muted);white-space:pre-wrap}
+    @media(max-width:520px){.topbar{padding:10px}.mode-btn{padding:6px 8px;font-size:11px}.brand{gap:6px}.brand-badge{width:30px;height:30px}.container{padding-top:18px}}
   </style>
 </head>
 <body>
@@ -64,26 +28,40 @@
     <button class="regie-btn" id="toggleRegie" type="button" aria-label="Ouvrir la console" aria-expanded="false">•••</button>
   </header>
   <main class="container">
-    <section class="hero"><h1>L'Intelligence Artificielle<br><span>la moins prévisible</span></h1><div class="cat-stage" id="catStage">🐱</div><div class="status-pill"><span class="dot" id="statusDot"></span><span id="statusText">OIIA en ligne • Mode Classique</span></div></section>
+    <section class="hero"><h1>L'Intelligence Artificielle<br><span>la moins prévisible</span></h1><div class="cat-stage" id="catStage">🐱</div><div class="status-pill"><span class="dot warn" id="statusDot"></span><span id="statusText">Connexion à la session…</span></div></section>
     <section class="chat-box" id="chatBox"><div class="msg bot"><div class="msg-meta">OIIA</div>Salut. Pose une question si tu oses, je promets rien.</div></section>
     <div class="typing" id="typingIndicator">OIIA analyse ta demande...</div>
   </main>
   <div class="pin-modal" id="pinModal"><form class="pin-card" id="pinForm"><h3>Code d'accès</h3><input type="password" class="pin-input" id="pinInput" placeholder="••••" autocomplete="off"><div class="btn-row"><button type="submit" class="mini-btn primary">Valider</button><button type="button" class="mini-btn" id="cancelPin">Annuler</button></div></form></div>
   <aside class="drawer" id="regieDrawer">
     <h2>Console de contrôle</h2><p class="sub">Réponses en direct et gestion de session.</p>
-    <div class="section"><strong>Session &amp; Lien invité</strong><div class="btn-row"><button class="mini-btn" id="copyFriendLink">Copier le lien invité</button><button class="mini-btn" id="newRoomBtn">Nouvelle session</button><button class="mini-btn" id="clearChat">Effacer le chat</button></div><input type="text" class="link-fallback" id="friendLinkField" readonly aria-label="Lien invité"><div class="room-badge" id="roomInfo">Session : chargement...</div></div>
+    <div class="section"><strong>Session &amp; Lien invité</strong><div class="btn-row"><button class="mini-btn" id="copyFriendLink">Copier le lien invité</button><button class="mini-btn" id="newRoomBtn">Nouvelle session</button><button class="mini-btn" id="clearChat">Effacer le chat</button></div><input type="text" class="link-fallback" id="friendLinkField" readonly aria-label="Lien invité"><div class="room-badge" id="roomInfo">Session : chargement…</div></div>
     <div class="section"><strong>Derniers messages reçus</strong><div class="incoming-box" id="incomingList">Aucun message envoyé pour l'instant.</div></div>
-    <div class="section"><strong>Mise en scène</strong><div class="btn-row"><button class="mini-btn" id="simTyping">Simuler "Écrit..."</button><button class="mini-btn" id="shakeCat">Faire vibrer le chat</button></div></div>
+    <div class="section"><strong>Mise en scène</strong><div class="btn-row"><button class="mini-btn" id="simTyping">Simuler « Écrit… »</button><button class="mini-btn" id="shakeCat">Faire vibrer le chat</button></div></div>
     <div class="section"><strong>Réponses rapides IA</strong><div class="btn-row" id="quickReplies"></div></div>
     <div class="section"><strong>Réponse personnalisée</strong><textarea class="reply-area" id="customReply" placeholder="Tape ta réponse en direct ici..."></textarea><div class="btn-row"><button class="mini-btn primary" id="sendCustomReply">Envoyer en tant qu'OIIA</button></div></div>
   </aside>
-  <div class="composer-wrap"><form class="composer" id="chatForm"><input type="text" id="userInput" placeholder="Salut" autocomplete="off"><button type="submit" class="send-btn">Envoyer</button></form></div>
+  <div class="composer-wrap"><form class="composer" id="chatForm"><input type="text" id="userInput" placeholder="Salut" autocomplete="off" maxlength="2000"><button type="submit" class="send-btn">Envoyer</button></form></div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, onValue, runTransaction, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAjwfhtuQYGyoQSY-nSKDNzCWzqroOLYzo",
+      authDomain: "oiia-a64cc.firebaseapp.com",
+      databaseURL: "https://oiia-a64cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "oiia-a64cc",
+      storageBucket: "oiia-a64cc.firebasestorage.app",
+      messagingSenderId: "624806391331",
+      appId: "1:624806391331:web:9f9f2f3eb46aae075d4b96",
+      measurementId: "G-KN12TXZ4TJ"
+    };
     const PIN_CODE = "1337";
-    const chatBox=document.getElementById("chatBox"); const chatForm=document.getElementById("chatForm"); const userInput=document.getElementById("userInput"); const typingIndicator=document.getElementById("typingIndicator"); const regieDrawer=document.getElementById("regieDrawer"); const pinModal=document.getElementById("pinModal"); const pinForm=document.getElementById("pinForm"); const pinInput=document.getElementById("pinInput"); const statusText=document.getElementById("statusText"); const statusDot=document.getElementById("statusDot"); const catStage=document.getElementById("catStage"); const incomingList=document.getElementById("incomingList"); const customReply=document.getElementById("customReply"); const quickRepliesBox=document.getElementById("quickReplies"); const friendLinkField=document.getElementById("friendLinkField"); const roomInfo=document.getElementById("roomInfo");
-    let unlocked=false,roomId=resolveRoomId(),storageKey="oiia_prank_room_"+roomId,channel=null;
-
+    const $ = id => document.getElementById(id);
+    const chatBox=$("chatBox"), chatForm=$("chatForm"), userInput=$("userInput"), typingIndicator=$("typingIndicator"), regieDrawer=$("regieDrawer"), pinModal=$("pinModal"), pinForm=$("pinForm"), pinInput=$("pinInput"), statusText=$("statusText"), statusDot=$("statusDot"), catStage=$("catStage"), incomingList=$("incomingList"), customReply=$("customReply"), friendLinkField=$("friendLinkField"), roomInfo=$("roomInfo");
+    let unlocked=false, state={messages:[],typing:false,shakeSeq:0,updatedAt:Date.now()}, lastShakeSeq=0;
+    const app=initializeApp(firebaseConfig), database=getDatabase(app);
+    const roomId=resolveRoomId(), stateRef=ref(database,`rooms/${roomId}/state`);
     const QUICK_REPLIES=[
       "Ma réponse est prête : je peux t'aider à analyser cette demande et à trouver une solution claire.",
       "Je détecte plusieurs pistes. Partage davantage de détails pour que je puisse te répondre précisément.",
@@ -94,31 +72,30 @@
       "Pour obtenir une réponse optimale, indique-moi le contexte, tes contraintes et le résultat attendu.",
       "Plusieurs approches sont possibles. Je peux te présenter les avantages et les limites de chacune."
     ];
-
     function randomRoomId(){const chars="abcdefghjkmnpqrstuvwxyz23456789";let out="";for(let i=0;i<10;i++)out+=chars[Math.floor(Math.random()*chars.length)];return out;}
-    function resolveRoomId(){const url=new URL(window.location.href);let r=url.searchParams.get("room");if(!r||!/^[a-zA-Z0-9_-]{4,24}$/.test(r)){r=randomRoomId();url.searchParams.set("room",r);history.replaceState({},"",url.toString());}return r;}
+    function resolveRoomId(){const url=new URL(window.location.href);let room=url.searchParams.get("room");if(!room||!/^[a-zA-Z0-9_-]{4,24}$/.test(room)){room=randomRoomId();url.searchParams.set("room",room);history.replaceState({},"",url.toString());}return room;}
     function getFriendUrl(){const url=new URL(window.location.href);url.searchParams.set("room",roomId);return url.toString();}
-    function defaultState(){return{messages:[],typing:false,shakeSeq:0,updatedAt:Date.now()};}
-    function normalizeState(data){if(!data||!Array.isArray(data.messages))return null;return{messages:data.messages,typing:Boolean(data.typing),shakeSeq:Number(data.shakeSeq||0),updatedAt:Number(data.updatedAt||0)};}
-    function loadLocalState(){try{const state=normalizeState(JSON.parse(localStorage.getItem(storageKey)||"null"));return state||defaultState();}catch{return defaultState();}}
-    function saveLocalState(state){try{localStorage.setItem(storageKey,JSON.stringify(state));}catch{}}
-    function syncState(state){saveLocalState(state);if(channel){try{channel.postMessage(state);}catch{}}}
-    function setupBroadcast(){if("BroadcastChannel" in window){channel=new BroadcastChannel("oiia_bc_"+roomId);channel.onmessage=ev=>applyState(normalizeState(ev.data));}}
-    function renderMessages(messages){chatBox.innerHTML="";if(!messages.length){chatBox.innerHTML='<div class="msg bot"><div class="msg-meta">OIIA</div>Salut. Pose une question si tu oses, je promets rien.</div>';return;}messages.forEach(message=>{const div=document.createElement("div");div.className="msg "+(message.role=== "user"?"user":"bot");if(message.role=== "bot"){const meta=document.createElement("div");meta.className="msg-meta";meta.textContent="OIIA";div.appendChild(meta);}div.appendChild(document.createTextNode(message.text));chatBox.appendChild(div);});chatBox.scrollIntoView({behavior:"smooth",block:"end"});}
-    function applyState(state){if(!state)return;renderMessages(state.messages);typingIndicator.classList.toggle("visible",state.typing);if(state.shakeSeq>Number(window.lastShakeSeq||0)){window.lastShakeSeq=state.shakeSeq;catStage.classList.remove("shake");void catStage.offsetWidth;catStage.classList.add("shake");}}
-    function openConsole(){if(unlocked){regieDrawer.classList.toggle("open");document.getElementById("toggleRegie").setAttribute("aria-expanded",regieDrawer.classList.contains("open")?"true":"false");}else{pinModal.classList.add("open");pinInput.value="";pinInput.focus();}}
-    document.getElementById("toggleRegie").addEventListener("click",openConsole); document.getElementById("brandLogo").addEventListener("click",()=>{catStage.classList.remove("shake");void catStage.offsetWidth;catStage.classList.add("shake");});
-    document.getElementById("cancelPin").addEventListener("click",()=>pinModal.classList.remove("open"));pinForm.addEventListener("submit",event=>{event.preventDefault();if(pinInput.value===PIN_CODE){unlocked=true;pinModal.classList.remove("open");regieDrawer.classList.add("open");document.getElementById("toggleRegie").setAttribute("aria-expanded","true");}else{pinInput.value="";pinInput.placeholder="Code incorrect";}});
-    chatForm.addEventListener("submit",event=>{event.preventDefault();const text=userInput.value.trim();if(!text)return;const state=loadLocalState();state.messages.push({role:"user",text});state.updatedAt=Date.now();syncState(state);applyState(state);userInput.value="";const incoming=state.messages.filter(message=>message.role=== "user").map(message=>message.text).slice(-8).reverse();incomingList.textContent=incoming.length?incoming.join("\n"):"Aucun message envoyé pour l'instant.";});
-    document.querySelectorAll(".mode-btn").forEach(button=>{button.addEventListener("click",()=>{document.querySelectorAll(".mode-btn").forEach(item=>item.classList.remove("active"));button.classList.add("active");statusText.textContent="OIIA en ligne • Mode "+button.dataset.mode;});});
-    document.getElementById("clearChat").addEventListener("click",()=>{const state=defaultState();syncState(state);applyState(state);incomingList.textContent="Aucun message envoyé pour l'instant.";});
-    document.getElementById("newRoomBtn").addEventListener("click",()=>{const url=new URL(window.location.href);url.searchParams.set("room",randomRoomId());window.location.href=url.toString();});
-    document.getElementById("copyFriendLink").addEventListener("click",async()=>{const link=getFriendUrl();friendLinkField.value=link;try{await navigator.clipboard.writeText(link);}catch{friendLinkField.select();}});
-    document.getElementById("simTyping").addEventListener("click",()=>{const state=loadLocalState();state.typing=true;state.updatedAt=Date.now();syncState(state);applyState(state);setTimeout(()=>{const current=loadLocalState();current.typing=false;current.updatedAt=Date.now();syncState(current);applyState(current);},1800);});
-    document.getElementById("shakeCat").addEventListener("click",()=>{const state=loadLocalState();state.shakeSeq=Number(state.shakeSeq||0)+1;state.updatedAt=Date.now();syncState(state);applyState(state);});
-    document.getElementById("sendCustomReply").addEventListener("click",()=>{const text=customReply.value.trim();if(!text)return;const state=loadLocalState();state.messages.push({role:"bot",text});state.updatedAt=Date.now();syncState(state);applyState(state);customReply.value="";});
-    QUICK_REPLIES.forEach(text=>{const button=document.createElement("button");button.type="button";button.className="mini-btn";button.textContent=text;button.title=text;button.addEventListener("click",()=>{const state=loadLocalState();state.messages.push({role:"bot",text});state.updatedAt=Date.now();syncState(state);applyState(state);});quickRepliesBox.appendChild(button);});
-    setupBroadcast();friendLinkField.value=getFriendUrl();roomInfo.textContent="Session : "+roomId;applyState(loadLocalState());
+    function defaultState(){return {messages:[],typing:false,shakeSeq:0,updatedAt:Date.now()};}
+    function normalizeState(data){if(!data||!Array.isArray(data.messages))return defaultState();return {messages:data.messages.filter(m=>m&&["user","bot"].includes(m.role)&&typeof m.text==="string").slice(-200),typing:Boolean(data.typing),shakeSeq:Number(data.shakeSeq)||0,updatedAt:Number(data.updatedAt)||Date.now()};}
+    function renderMessages(messages){chatBox.replaceChildren();if(!messages.length){const empty=document.createElement("div");empty.className="msg bot";const meta=document.createElement("div");meta.className="msg-meta";meta.textContent="OIIA";empty.append(meta,document.createTextNode("Salut. Pose une question si tu oses, je promets rien."));chatBox.append(empty);return;}for(const message of messages){const item=document.createElement("div");item.className=`msg ${message.role}`;if(message.role==="bot"){const meta=document.createElement("div");meta.className="msg-meta";meta.textContent="OIIA";item.append(meta);}item.append(document.createTextNode(message.text));chatBox.append(item);}chatBox.scrollIntoView({behavior:"smooth",block:"end"});}
+    function applyState(next){state=normalizeState(next);renderMessages(state.messages);typingIndicator.classList.toggle("visible",state.typing);if(state.shakeSeq>lastShakeSeq){lastShakeSeq=state.shakeSeq;catStage.classList.remove("shake");void catStage.offsetWidth;catStage.classList.add("shake");}const incoming=state.messages.filter(m=>m.role==="user").slice(-8).map(m=>m.text);incomingList.textContent=incoming.length?incoming.join("\n"):"Aucun message envoyé pour l'instant.";}
+    async function updateState(mutator){try{const result=await runTransaction(stateRef,current=>{const next=normalizeState(current);mutator(next);next.messages=next.messages.slice(-200);next.updatedAt=Date.now();return next;});if(!result.committed)throw new Error("Écriture non validée");return true;}catch(error){console.error("Firebase write failed:",error);statusText.textContent="Erreur de synchronisation — vérifie les règles Firebase";statusDot.classList.add("warn");return false;}}
+    onValue(stateRef,snapshot=>{applyState(snapshot.val()||defaultState());statusText.textContent=`OIIA en ligne · session ${roomId}`;statusDot.classList.remove("warn");},error=>{console.error("Firebase read failed:",error);statusText.textContent="Connexion refusée — vérifie les règles Firebase";statusDot.classList.add("warn");});
+    function openConsole(){if(unlocked){regieDrawer.classList.toggle("open");$("toggleRegie").setAttribute("aria-expanded",regieDrawer.classList.contains("open")?"true":"false");}else{pinModal.classList.add("open");pinInput.value="";pinInput.focus();}}
+    $("toggleRegie").addEventListener("click",openConsole);
+    $("brandLogo").addEventListener("click",()=>{catStage.classList.remove("shake");void catStage.offsetWidth;catStage.classList.add("shake");});
+    $("cancelPin").addEventListener("click",()=>pinModal.classList.remove("open"));
+    pinForm.addEventListener("submit",event=>{event.preventDefault();if(pinInput.value===PIN_CODE){unlocked=true;pinModal.classList.remove("open");regieDrawer.classList.add("open");$("toggleRegie").setAttribute("aria-expanded","true");}else{pinInput.value="";pinInput.placeholder="Code incorrect";}});
+    chatForm.addEventListener("submit",async event=>{event.preventDefault();const text=userInput.value.trim();if(!text)return;userInput.value="";await updateState(current=>current.messages.push({role:"user",text}));});
+    document.querySelectorAll(".mode-btn").forEach(button=>button.addEventListener("click",()=>{document.querySelectorAll(".mode-btn").forEach(item=>item.classList.remove("active"));button.classList.add("active");statusText.textContent=`OIIA en ligne · Mode ${button.dataset.mode} · session ${roomId}`;}));
+    $("clearChat").addEventListener("click",async()=>{try{await set(stateRef,defaultState());}catch(error){console.error(error);statusText.textContent="Impossible d'effacer : vérifie les règles Firebase";}});
+    $("newRoomBtn").addEventListener("click",()=>{const url=new URL(window.location.href);url.searchParams.set("room",randomRoomId());window.location.href=url.toString();});
+    $("copyFriendLink").addEventListener("click",async()=>{const link=getFriendUrl();friendLinkField.value=link;try{await navigator.clipboard.writeText(link);statusText.textContent="Lien de session copié";}catch{friendLinkField.select();document.execCommand("copy");}});
+    $("simTyping").addEventListener("click",async()=>{if(await updateState(current=>{current.typing=true;})){setTimeout(()=>updateState(current=>{current.typing=false;}),1800);}});
+    $("shakeCat").addEventListener("click",()=>updateState(current=>{current.shakeSeq+=1;}));
+    $("sendCustomReply").addEventListener("click",async()=>{const text=customReply.value.trim();if(!text)return;if(await updateState(current=>current.messages.push({role:"bot",text})))customReply.value="";});
+    QUICK_REPLIES.forEach(text=>{const button=document.createElement("button");button.type="button";button.className="mini-btn";button.textContent=text;button.title=text;button.addEventListener("click",()=>updateState(current=>current.messages.push({role:"bot",text})));$("quickReplies").append(button);});
+    friendLinkField.value=getFriendUrl();roomInfo.textContent="Session : "+roomId;
   </script>
 </body>
 </html>
