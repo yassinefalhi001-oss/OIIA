@@ -64,8 +64,7 @@
     let unlocked=false, state={messages:[],typing:false,shakeSeq:0,updatedAt:Date.now()}, lastShakeSeq=0, selectedPhoto=null, previewUrl=null;
     const app=initializeApp(firebaseConfig), database=getDatabase(app), storage=getStorage(app);
     const roomId=resolveRoomId(), stateRef=ref(database,`rooms/${roomId}/state`);
-    const QUICK_REPLIES=[
-      "Merci pour ton message. J’ai besoin d’un peu plus de contexte pour te répondre au mieux.",
+    const QUICK_REPLIES=["Merci pour ton message. J’ai besoin d’un peu plus de contexte pour te répondre au mieux.",
   "Oui, je suis là. Quelle est exactement la question ou le problème que tu veux résoudre ?",
   "Je peux t’aider, mais il me faudrait les informations essentielles : objectif, contexte et contraintes.",
   "Voici une piste intéressante : commençons par définir clairement ce que tu veux obtenir.",
