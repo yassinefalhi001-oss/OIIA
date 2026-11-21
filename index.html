@@ -60,34 +60,21 @@
 <body>
   <header class="topbar">
     <div class="brand" id="brandLogo" title="OIIA"><div class="brand-badge">🐱</div><span>OIIA</span></div>
-    <div class="modes">
-      <button class="mode-btn active" data-mode="Classique">Mode Classique</button>
-      <button class="mode-btn" data-mode="YouTube">Mode YouTube</button>
-    </div>
+    <div class="modes"><button class="mode-btn active" data-mode="Classique">Mode Classique</button><button class="mode-btn" data-mode="YouTube">Mode YouTube</button></div>
     <button class="regie-btn" id="toggleRegie" type="button" aria-label="Ouvrir la console" aria-expanded="false">•••</button>
   </header>
 
   <main class="container">
-    <section class="hero">
-      <h1>L'Intelligence Artificielle<br><span>la moins prévisible</span></h1>
-      <div class="cat-stage" id="catStage">🐱</div>
-      <div class="status-pill"><span class="dot" id="statusDot"></span><span id="statusText">OIIA en ligne • Mode Classique</span></div>
-    </section>
+    <section class="hero"><h1>L'Intelligence Artificielle<br><span>la moins prévisible</span></h1><div class="cat-stage" id="catStage">🐱</div><div class="status-pill"><span class="dot" id="statusDot"></span><span id="statusText">OIIA en ligne • Mode Classique</span></div></section>
     <section class="chat-box" id="chatBox"><div class="msg bot"><div class="msg-meta">OIIA</div>Salut. Pose une question si tu oses, je promets rien.</div></section>
     <div class="typing" id="typingIndicator">OIIA analyse ta demande...</div>
   </main>
 
-  <div class="pin-modal" id="pinModal">
-    <form class="pin-card" id="pinForm">
-      <h3>Code d'accès</h3>
-      <input type="password" class="pin-input" id="pinInput" placeholder="••••" autocomplete="off">
-      <div class="btn-row"><button type="submit" class="mini-btn primary">Valider</button><button type="button" class="mini-btn" id="cancelPin">Annuler</button></div>
-    </form>
-  </div>
+  <div class="pin-modal" id="pinModal"><form class="pin-card" id="pinForm"><h3>Code d'accès</h3><input type="password" class="pin-input" id="pinInput" placeholder="••••" autocomplete="off"><div class="btn-row"><button type="submit" class="mini-btn primary">Valider</button><button type="button" class="mini-btn" id="cancelPin">Annuler</button></div></form></div>
 
   <aside class="drawer" id="regieDrawer">
     <h2>Console de contrôle</h2><p class="sub">Réponses en direct et gestion de session.</p>
-    <div class="section"><strong>Session & Lien invité</strong><div class="btn-row"><button class="mini-btn" id="copyFriendLink">Copier le lien invité</button><button class="mini-btn" id="newRoomBtn">Nouvelle session</button><button class="mini-btn" id="clearChat">Effacer le chat</button></div><input type="text" class="link-fallback" id="friendLinkField" readonly aria-label="Lien invité"><div class="room-badge" id="roomInfo">Session : chargement...</div></div>
+    <div class="section"><strong>Session &amp; Lien invité</strong><div class="btn-row"><button class="mini-btn" id="copyFriendLink">Copier le lien invité</button><button class="mini-btn" id="newRoomBtn">Nouvelle session</button><button class="mini-btn" id="clearChat">Effacer le chat</button></div><input type="text" class="link-fallback" id="friendLinkField" readonly aria-label="Lien invité"><div class="room-badge" id="roomInfo">Session : chargement...</div></div>
     <div class="section"><strong>Derniers messages reçus</strong><div class="incoming-box" id="incomingList">Aucun message envoyé pour l'instant.</div></div>
     <div class="section"><strong>Mise en scène</strong><div class="btn-row"><button class="mini-btn" id="simTyping">Simuler "Écrit..."</button><button class="mini-btn" id="shakeCat">Faire vibrer le chat</button></div></div>
     <div class="section"><strong>Réponses rapides absurdes</strong><div class="btn-row" id="quickReplies"></div></div>
@@ -121,229 +108,38 @@
     let channel = null;
 
     const QUICK_REPLIES = [
-      "ERREUR : Mot de passe invalide. Redémarre ton cerveau.",
-      "Je sais ce que tu as fait hier. Ne clique pas sur Entrée.",
-      "Miaou. Traduction : ta question est illégale dans 4 pays.",
-      "Attend, je demande à un pigeon, il revient dans 3 secondes."
+      "Ma réponse est prête : je peux t'aider à analyser cette demande et à trouver une solution claire.",
+      "Je détecte plusieurs pistes. Partage davantage de détails pour que je puisse te répondre précisément.",
+      "Selon les données disponibles, voici une réponse fiable : reformule l'objectif en une phrase simple.",
+      "Je suis en train de traiter ta demande, merci de patienter quelques instants pendant que j'organise les informations."
     ];
 
-    function randomRoomId() {
-      const chars = "abcdefghjkmnpqrstuvwxyz23456789";
-      let out = "";
-      for (let i = 0; i < 10; i++) out += chars[Math.floor(Math.random() * chars.length)];
-      return out;
-    }
-
-    function resolveRoomId() {
-      const url = new URL(window.location.href);
-      let r = url.searchParams.get("room");
-      if (!r || !/^[a-zA-Z0-9_-]{4,24}$/.test(r)) {
-        r = randomRoomId();
-        url.searchParams.set("room", r);
-        history.replaceState({}, "", url.toString());
-      }
-      return r;
-    }
-
-    function getFriendUrl() {
-      const url = new URL(window.location.href);
-      url.searchParams.set("room", roomId);
-      return url.toString();
-    }
-
-    function defaultState() { return { messages: [], typing:false, shakeSeq:0, updatedAt:Date.now() }; }
-
-    function normalizeState(data) {
-      if (!data || !Array.isArray(data.messages)) return null;
-      return { messages:data.messages, typing:Boolean(data.typing), shakeSeq:Number(data.shakeSeq || 0), updatedAt:Number(data.updatedAt || 0) };
-    }
-
-    function loadLocalState() {
-      try {
-        const state = normalizeState(JSON.parse(localStorage.getItem(storageKey) || "null"));
-        return state || defaultState();
-      } catch { return defaultState(); }
-    }
-
-    function saveLocalState(state) {
-      try { localStorage.setItem(storageKey, JSON.stringify(state)); } catch {}
-    }
-
-    function syncState(state) {
-      saveLocalState(state);
-      if (channel) { try { channel.postMessage(state); } catch {} }
-    }
-
-    function setupBroadcast() {
-      if ("BroadcastChannel" in window) {
-        channel = new BroadcastChannel("oiia_bc_" + roomId);
-        channel.onmessage = ev => applyState(normalizeState(ev.data));
-      }
-    }
-
-    function renderMessages(messages) {
-      chatBox.innerHTML = "";
-      if (!messages.length) {
-        chatBox.innerHTML = '<div class="msg bot"><div class="msg-meta">OIIA</div>Salut. Pose une question si tu oses, je promets rien.</div>';
-        return;
-      }
-      messages.forEach(message => {
-        const div = document.createElement("div");
-        div.className = "msg " + (message.role === "user" ? "user" : "bot");
-        if (message.role === "bot") {
-          const meta = document.createElement("div");
-          meta.className = "msg-meta";
-          meta.textContent = "OIIA";
-          div.appendChild(meta);
-        }
-        div.appendChild(document.createTextNode(message.text));
-        chatBox.appendChild(div);
-      });
-      chatBox.scrollIntoView({ behavior:"smooth", block:"end" });
-    }
-
-    function applyState(state) {
-      if (!state) return;
-      renderMessages(state.messages);
-      typingIndicator.classList.toggle("visible", state.typing);
-      if (state.shakeSeq > Number(window.lastShakeSeq || 0)) {
-        window.lastShakeSeq = state.shakeSeq;
-        catStage.classList.remove("shake");
-        void catStage.offsetWidth;
-        catStage.classList.add("shake");
-      }
-    }
-
-    function openConsole() {
-      if (unlocked) {
-        regieDrawer.classList.toggle("open");
-        document.getElementById("toggleRegie").setAttribute("aria-expanded", regieDrawer.classList.contains("open") ? "true" : "false");
-      } else {
-        pinModal.classList.add("open");
-        pinInput.value = "";
-        pinInput.focus();
-      }
-    }
-
-    document.getElementById("toggleRegie").addEventListener("click", openConsole);
-    document.getElementById("brandLogo").addEventListener("click", () => {
-      catStage.classList.remove("shake");
-      void catStage.offsetWidth;
-      catStage.classList.add("shake");
-    });
-
-    document.getElementById("cancelPin").addEventListener("click", () => pinModal.classList.remove("open"));
-    pinForm.addEventListener("submit", event => {
-      event.preventDefault();
-      if (pinInput.value === PIN_CODE) {
-        unlocked = true;
-        pinModal.classList.remove("open");
-        regieDrawer.classList.add("open");
-        document.getElementById("toggleRegie").setAttribute("aria-expanded", "true");
-      } else {
-        pinInput.value = "";
-        pinInput.placeholder = "Code incorrect";
-      }
-    });
-
-    chatForm.addEventListener("submit", event => {
-      event.preventDefault();
-      const text = userInput.value.trim();
-      if (!text) return;
-      const state = loadLocalState();
-      state.messages.push({ role:"user", text });
-      state.updatedAt = Date.now();
-      syncState(state);
-      applyState(state);
-      userInput.value = "";
-
-      const incoming = state.messages.filter(message => message.role === "user").map(message => message.text).slice(-8).reverse();
-      incomingList.textContent = incoming.length ? incoming.join("\n") : "Aucun message envoyé pour l'instant.";
-    });
-
-    document.querySelectorAll(".mode-btn").forEach(button => {
-      button.addEventListener("click", () => {
-        document.querySelectorAll(".mode-btn").forEach(item => item.classList.remove("active"));
-        button.classList.add("active");
-        statusText.textContent = "OIIA en ligne • Mode " + button.dataset.mode;
-      });
-    });
-
-    document.getElementById("clearChat").addEventListener("click", () => {
-      const state = defaultState();
-      syncState(state);
-      applyState(state);
-      incomingList.textContent = "Aucun message envoyé pour l'instant.";
-    });
-
-    document.getElementById("newRoomBtn").addEventListener("click", () => {
-      const url = new URL(window.location.href);
-      url.searchParams.set("room", randomRoomId());
-      window.location.href = url.toString();
-    });
-
-    document.getElementById("copyFriendLink").addEventListener("click", async () => {
-      const link = getFriendUrl();
-      friendLinkField.value = link;
-      try { await navigator.clipboard.writeText(link); } catch {
-        friendLinkField.select();
-      }
-    });
-
-    document.getElementById("simTyping").addEventListener("click", () => {
-      const state = loadLocalState();
-      state.typing = true;
-      state.updatedAt = Date.now();
-      syncState(state);
-      applyState(state);
-      setTimeout(() => {
-        const current = loadLocalState();
-        current.typing = false;
-        current.updatedAt = Date.now();
-        syncState(current);
-        applyState(current);
-      }, 1800);
-    });
-
-    document.getElementById("shakeCat").addEventListener("click", () => {
-      const state = loadLocalState();
-      state.shakeSeq = Number(state.shakeSeq || 0) + 1;
-      state.updatedAt = Date.now();
-      syncState(state);
-      applyState(state);
-    });
-
-    document.getElementById("sendCustomReply").addEventListener("click", () => {
-      const text = customReply.value.trim();
-      if (!text) return;
-      const state = loadLocalState();
-      state.messages.push({ role:"bot", text });
-      state.updatedAt = Date.now();
-      syncState(state);
-      applyState(state);
-      customReply.value = "";
-    });
-
-    QUICK_REPLIES.forEach(text => {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "mini-btn";
-      button.textContent = text.length > 34 ? text.slice(0,34) + "..." : text;
-      button.title = text;
-      button.addEventListener("click", () => {
-        const state = loadLocalState();
-        state.messages.push({ role:"bot", text });
-        state.updatedAt = Date.now();
-        syncState(state);
-        applyState(state);
-      });
-      quickRepliesBox.appendChild(button);
-    });
-
-    setupBroadcast();
-    friendLinkField.value = getFriendUrl();
-    roomInfo.textContent = "Session : " + roomId;
-    applyState(loadLocalState());
+    function randomRoomId() { const chars="abcdefghjkmnpqrstuvwxyz23456789"; let out=""; for(let i=0;i<10;i++) out+=chars[Math.floor(Math.random()*chars.length)]; return out; }
+    function resolveRoomId() { const url=new URL(window.location.href); let r=url.searchParams.get("room"); if(!r||!/^[a-zA-Z0-9_-]{4,24}$/.test(r)){r=randomRoomId();url.searchParams.set("room",r);history.replaceState({},"",url.toString());} return r; }
+    function getFriendUrl(){const url=new URL(window.location.href);url.searchParams.set("room",roomId);return url.toString();}
+    function defaultState(){return{messages:[],typing:false,shakeSeq:0,updatedAt:Date.now()};}
+    function normalizeState(data){if(!data||!Array.isArray(data.messages))return null;return{messages:data.messages,typing:Boolean(data.typing),shakeSeq:Number(data.shakeSeq||0),updatedAt:Number(data.updatedAt||0)};}
+    function loadLocalState(){try{const state=normalizeState(JSON.parse(localStorage.getItem(storageKey)||"null"));return state||defaultState();}catch{return defaultState();}}
+    function saveLocalState(state){try{localStorage.setItem(storageKey,JSON.stringify(state));}catch{}}
+    function syncState(state){saveLocalState(state);if(channel){try{channel.postMessage(state);}catch{}}}
+    function setupBroadcast(){if("BroadcastChannel" in window){channel=new BroadcastChannel("oiia_bc_"+roomId);channel.onmessage=ev=>applyState(normalizeState(ev.data));}}
+    function renderMessages(messages){chatBox.innerHTML="";if(!messages.length){chatBox.innerHTML='<div class="msg bot"><div class="msg-meta">OIIA</div>Salut. Pose une question si tu oses, je promets rien.</div>';return;}messages.forEach(message=>{const div=document.createElement("div");div.className="msg "+(message.role=== "user"?"user":"bot");if(message.role=== "bot"){const meta=document.createElement("div");meta.className="msg-meta";meta.textContent="OIIA";div.appendChild(meta);}div.appendChild(document.createTextNode(message.text));chatBox.appendChild(div);});chatBox.scrollIntoView({behavior:"smooth",block:"end"});}
+    function applyState(state){if(!state)return;renderMessages(state.messages);typingIndicator.classList.toggle("visible",state.typing);if(state.shakeSeq>Number(window.lastShakeSeq||0)){window.lastShakeSeq=state.shakeSeq;catStage.classList.remove("shake");void catStage.offsetWidth;catStage.classList.add("shake");}}
+    function openConsole(){if(unlocked){regieDrawer.classList.toggle("open");document.getElementById("toggleRegie").setAttribute("aria-expanded",regieDrawer.classList.contains("open")?"true":"false");}else{pinModal.classList.add("open");pinInput.value="";pinInput.focus();}}
+    document.getElementById("toggleRegie").addEventListener("click",openConsole);
+    document.getElementById("brandLogo").addEventListener("click",()=>{catStage.classList.remove("shake");void catStage.offsetWidth;catStage.classList.add("shake");});
+    document.getElementById("cancelPin").addEventListener("click",()=>pinModal.classList.remove("open"));
+    pinForm.addEventListener("submit",event=>{event.preventDefault();if(pinInput.value===PIN_CODE){unlocked=true;pinModal.classList.remove("open");regieDrawer.classList.add("open");document.getElementById("toggleRegie").setAttribute("aria-expanded","true");}else{pinInput.value="";pinInput.placeholder="Code incorrect";}});
+    chatForm.addEventListener("submit",event=>{event.preventDefault();const text=userInput.value.trim();if(!text)return;const state=loadLocalState();state.messages.push({role:"user",text});state.updatedAt=Date.now();syncState(state);applyState(state);userInput.value="";const incoming=state.messages.filter(message=>message.role=== "user").map(message=>message.text).slice(-8).reverse();incomingList.textContent=incoming.length?incoming.join("\n"):"Aucun message envoyé pour l'instant.";});
+    document.querySelectorAll(".mode-btn").forEach(button=>{button.addEventListener("click",()=>{document.querySelectorAll(".mode-btn").forEach(item=>item.classList.remove("active"));button.classList.add("active");statusText.textContent="OIIA en ligne • Mode "+button.dataset.mode;});});
+    document.getElementById("clearChat").addEventListener("click",()=>{const state=defaultState();syncState(state);applyState(state);incomingList.textContent="Aucun message envoyé pour l'instant.";});
+    document.getElementById("newRoomBtn").addEventListener("click",()=>{const url=new URL(window.location.href);url.searchParams.set("room",randomRoomId());window.location.href=url.toString();});
+    document.getElementById("copyFriendLink").addEventListener("click",async()=>{const link=getFriendUrl();friendLinkField.value=link;try{await navigator.clipboard.writeText(link);}catch{friendLinkField.select();}});
+    document.getElementById("simTyping").addEventListener("click",()=>{const state=loadLocalState();state.typing=true;state.updatedAt=Date.now();syncState(state);applyState(state);setTimeout(()=>{const current=loadLocalState();current.typing=false;current.updatedAt=Date.now();syncState(current);applyState(current);},1800);});
+    document.getElementById("shakeCat").addEventListener("click",()=>{const state=loadLocalState();state.shakeSeq=Number(state.shakeSeq||0)+1;state.updatedAt=Date.now();syncState(state);applyState(state);});
+    document.getElementById("sendCustomReply").addEventListener("click",()=>{const text=customReply.value.trim();if(!text)return;const state=loadLocalState();state.messages.push({role:"bot",text});state.updatedAt=Date.now();syncState(state);applyState(state);customReply.value="";});
+    QUICK_REPLIES.forEach(text=>{const button=document.createElement("button");button.type="button";button.className="mini-btn";button.textContent=text.length>34?text.slice(0,34)+"...":text;button.title=text;button.addEventListener("click",()=>{const state=loadLocalState();state.messages.push({role:"bot",text});state.updatedAt=Date.now();syncState(state);applyState(state);});quickRepliesBox.appendChild(button);});
+    setupBroadcast();friendLinkField.value=getFriendUrl();roomInfo.textContent="Session : "+roomId;applyState(loadLocalState());
   </script>
 </body>
 </html>
