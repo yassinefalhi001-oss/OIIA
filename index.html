@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OIIA — L'Intelligence Artificielle la moins prévisible</title>
+  <style>
+    :root {
+      --bg: #070709;
+      --card: #111116;
+      --card-2: #181820;
+      --border: rgba(255,255,255,0.09);
+      --text: #f5f5f7;
+      --muted: #9a9aa6;
+      --accent: #ff5e3a;
+      --accent-2: #a855f7;
+      --ok: #22c55e;
+      --warn: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,10,14,0.85);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      gap: 8px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      user-select: none;
+    }
+    .brand-badge {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+    }
+    .modes {
+      display: inline-flex;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 4px;
+      gap: 4px;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: var(--text);
+      color: #09090b;
+    }
+    .regie-btn {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid transparent;
+      padding: 6px 10px;
+      border-radius: 9px;
+      font-size: 11px;
+      font-weight: 600;
+      opacity: 0.45;
+      cursor: pointer;
+    }
+    .regie-btn:hover { opacity: 0.9; border-color: var(--border); }
+    .container {
+      width: 100%;
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 28px 18px 110px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .hero {
+      text-align: center;
+      padding: 16px 0 8px;
+    }
+    .hero h1 {
+      font-size: clamp(28px, 5vw, 44px);
+      line-height: 1.12;
+      font-weight: 900;
+      margin-bottom: 14px;
+    }
+    .hero h1 span {
+      background: linear-gradient(90deg, var(--accent), #fb923c, var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .cat-stage {
+      width: 150px;
+      height: 150px;
+      margin: 8px auto 6px;
+      border-radius: 28px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+      font-size: 74px;
+      transition: transform 0.25s ease;
+    }
+    .cat-stage.shake {
+      animation: shake 0.45s ease;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0) rotate(0); }
+      25% { transform: translateX(-8px) rotate(-4deg); }
+      75% { transform: translateX(8px) rotate(4deg); }
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      color: var(--muted);
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 5px 12px;
+      border-radius: 999px;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--ok);
+    }
+    .dot.warn { background: var(--warn); }
+    .chat-box {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .msg {
+      max-width: 82%;
+      padding: 13px 16px;
+      border-radius: 18px;
+      line-height: 1.45;
+      font-size: 15px;
+      white-space: pre-wrap;
+    }
+    .msg.user {
+      align-self: flex-end;
+      background: #2563eb;
+      color: #fff;
+      border-bottom-right-radius: 5px;
+    }
+    .msg.bot {
+      align-self: flex-start;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-bottom-left-radius: 5px;
+    }
+    .msg-meta {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+    .typing {
+      align-self: flex-start;
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 13px;
+      color: var(--muted);
+      display: none;
+    }
+    .typing.visible { display: block; }
+    .composer-wrap {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 14px 18px 20px;
+      background: linear-gradient(to top, var(--bg) 70%, transparent);
+    }
+    .composer {
+      max-width: 780px;
+      margin: 0 auto;
+      display: flex;
+      gap: 10px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 8px 10px 8px 16px;
+    }
+    .composer input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 15px;
+      outline: none;
+    }
+    .send-btn {
+      background: var(--text);
+      color: #09090b;
+      border: none;
+      border-radius: 11px;
+      padding: 9px 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .pin-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 50;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .pin-modal.open { display: flex; }
+    .pin-card {
+      width: 100%;
+      max-width: 320px;
+      background: #14141c;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 16px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .pin-card h3 { font-size: 15px; }
+    .pin-input {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+    }
+    .drawer {
+      display: none;
+      position: fixed;
+      top: 64px;
+      right: 16px;
+      width: min(430px, calc(100vw - 32px));
+      max-height: calc(100vh - 84px);
+      overflow-y: auto;
+      background: #121218;
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 18px;
+      padding: 18px;
+      z-index: 40;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.65);
+    }
+    .drawer.open { display: block; }
+    .drawer h2 { font-size: 16px; margin-bottom: 4px; }
+    .drawer p.sub { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+    .section { margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+    .section:last-child { border-bottom: none; margin-bottom: 0; }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .mini-btn {
+      background: var(--card-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 7px 11px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .mini-btn:hover { border-color: rgba(255,255,255,0.3); }
+    .mini-btn.primary { background: var(--accent); color: #fff; border: none; }
+    .reply-area {
+      width: 100%;
+      min-height: 76px;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 13px;
+      margin-top: 8px;
+      resize: vertical;
+    }
+    .link-fallback {
+      width: 100%;
+      margin-top: 8px;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 7px 10px;
+      font-size: 12px;
+    }
+    .room-badge {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+    .incoming-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 12px;
+      max-height: 130px;
+      overflow-y: auto;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand" id="brandLogo" title="OIIA">
+      <div class="brand-badge">🐱</div>
+      <span>OIIA</span>
+    </div>
+    <div class="modes">
+      <button class="mode-btn active" data-mode="Classique">Mode Classique</button>
+      <button class="mode-btn" data-mode="YouTube">Mode YouTube</button>
+    </div>
+    <button class="regie-btn" id="toggleRegie" aria-label="Options">•••</button>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1>L'Intelligence Artificielle<br><span>la moins prévisible</span></h1>
+      <div class="cat-stage" id="catStage">🐱</div>
+      <div class="status-pill">
+        <span class="dot" id="statusDot"></span>
+        <span id="statusText">OIIA en ligne • Mode Classique</span>
+      </div>
+    </section>
+
+    <section class="chat-box" id="chatBox">
+      <div class="msg bot">
+        <div class="msg-meta">OIIA</div>
+        Salut. Pose une question si tu oses, je promets rien.
+      </div>
+    </section>
+
+    <div class="typing" id="typingIndicator">OIIA analyse ta demande...</div>
+  </main>
+
+  <div class="pin-modal" id="pinModal">
+    <form class="pin-card" id="pinForm">
+      <h3>Code d'accès</h3>
+      <input type="password" class="pin-input" id="pinInput" placeholder="••••" autocomplete="off" />
+      <div class="btn-row">
+        <button type="submit" class="mini-btn primary">Valider</button>
+        <button type="button" class="mini-btn" id="cancelPin">Annuler</button>
+      </div>
+    </form>
+  </div>
+
+  <aside class="drawer" id="regieDrawer">
+    <h2>Console de contrôle</h2>
+    <p class="sub">Réponses en direct et gestion de session.</p>
+
+    <div class="section">
+      <strong>Session & Lien invité</strong>
+      <div class="btn-row">
+        <button class="mini-btn" id="copyFriendLink">Copier le lien invité</button>
+        <button class="mini-btn" id="newRoomBtn">Nouvelle session</button>
+        <button class="mini-btn" id="clearChat">Effacer le chat</button>
+      </div>
+      <input type="text" class="link-fallback" id="friendLinkField" readonly aria-label="Lien invité" />
+      <div class="room-badge" id="roomInfo">Session : chargement...</div>
+    </div>
+
+    <div class="section">
+      <strong>Derniers messages reçus</strong>
+      <div class="incoming-box" id="incomingList">Aucun message envoyé pour l'instant.</div>
+    </div>
+
+    <div class="section">
+      <strong>Mise en scène</strong>
+      <div class="btn-row">
+        <button class="mini-btn" id="simTyping">Simuler "Écrit..."</button>
+        <button class="mini-btn" id="shakeCat">Faire vibrer le chat</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <strong>Réponses rapides absurdes</strong>
+      <div class="btn-row" id="quickReplies"></div>
+    </div>
+
+    <div class="section">
+      <strong>Réponse personnalisée</strong>
+      <textarea class="reply-area" id="customReply" placeholder="Tape ta réponse en direct ici..."></textarea>
+      <div class="btn-row">
+        <button class="mini-btn primary" id="sendCustomReply">Envoyer en tant qu'OIIA</button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="composer-wrap">
+    <form class="composer" id="chatForm">
+      <input type="text" id="userInput" placeholder="Salut" autocomplete="off" />
+      <button type="submit" class="send-btn">Envoyer</button>
+    </form>
+  </div>
+
+  <script>
+    const PIN_CODE = "1337";
+    const SYNC_ENDPOINTS = [
+      "https://kvdb.io",
+      "https://ntfy.sh"
+    ];
+    const chatBox = document.getElementById("chatBox");
+    const chatForm = document.getElementById("chatForm");
+    const userInput = document.getElementById("userInput");
+    const typingIndicator = document.getElementById("typingIndicator");
+    const regieDrawer = document.getElementById("regieDrawer");
+    const pinModal = document.getElementById("pinModal");
+    const pinForm = document.getElementById("pinForm");
+    const pinInput = document.getElementById("pinInput");
+    const statusText = document.getElementById("statusText");
+    const statusDot = document.getElementById("statusDot");
+    const catStage = document.getElementById("catStage");
+    const incomingList = document.getElementById("incomingList");
+    const customReply = document.getElementById("customReply");
+    const quickRepliesBox = document.getElementById("quickReplies");
+    const friendLinkField = document.getElementById("friendLinkField");
+    const roomInfo = document.getElementById("roomInfo");
+
+    let currentMode = "Classique";
+    let unlocked = false;
+    let roomId = resolveRoomId();
+    let storageKey = "oiia_prank_room_" + roomId;
+    let lastStateJson = "";
+    let lastSeenShake = 0;
+    let channel = null;
+
+    const QUICK_REPLIES = [
+      "ERREUR : Mot de passe invalide. Redémarre ton cerveau.",
+      "Je sais ce que tu as fait hier. Ne clique pas sur Entrée.",
+      "Miaou. Traduction : ta question est illégale dans 4 pays.",
+      "Attend je demande à un pigeon, il revient dans 3 secondes."
+    ];
+
+    function randomRoomId() {
+      const chars = "abcdefghjkmnpqrstuvwxyz23456789";
+      let out = "";
+      for (let i = 0; i < 10; i++) {
+        out += chars[Math.floor(Math.random() * chars.length)];
+      }
+      return out;
+    }
+
+    function resolveRoomId() {
+      const url = new URL(window.location.href);
+      let r = url.searchParams.get("room");
+      if (!r || !/^[a-zA-Z0-9_-]{4,24}$/.test(r)) {
+        r = randomRoomId();
+        url.searchParams.set("room", r);
+        try {
+          window.history.replaceState({}, "", url.toString());
+        } catch {}
+      }
+      return r;
+    }
+
+    function getFriendUrl() {
+      const url = new URL(window.location.href);
+      url.searchParams.set("room", roomId);
+      url.searchParams.delete("reset");
+      return url.toString();
+    }
+
+    function defaultState() {
+      return {
+        messages: [],
+        typing: false,
+        shakeSeq: 0,
+        updatedAt: Date.now()
+      };
+    }
+
+    function loadLocalState() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(storageKey) || "null");
+        if (parsed && Array.isArray(parsed.messages)) {
+          return {
+            messages: parsed.messages,
+            typing: Boolean(parsed.typing),
+            shakeSeq: Number(parsed.shakeSeq || 0),
+            updatedAt: Number(parsed.updatedAt || 0)
+          };
+        }
+      } catch {}
+      return defaultState();
+    }
+
+    function saveLocalState(state) {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(state));
+      } catch {}
+    }
+
+    function topicName() {
+      return "oiia_prank_sync_" + roomId;
+    }
+
+    function normalizeState(data) {
+      if (!data || !Array.isArray(data.messages)) return null;
+      return {
+        messages: data.messages,
+        typing: Boolean(data.typing),
+        shakeSeq: Number(data.shakeSeq || 0),
+        updatedAt: Number(data.updatedAt || 0)
+      };
+    }
+
+    async function pullFromKvdb() {
+      try {
+        const res = await fetch(`${SYNC_ENDPOINTS[0]}/${topicName()}?t=${Date.now()}`, {
+          cache: "no-store"
+        });
+        if (!res.ok) return null;
+        const data = await res.json();
+        return normalizeState(data);
+      } catch {
+        return null;
+      }
+    }
+
+    async function pushToKvdb(state) {
+      try {
+        await fetch(`${SYNC_ENDPOINTS[0]}/${topicName()}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(state)
+        });
+      } catch {}
+    }
+
+    async function pullFromNtfy() {
+      try {
+        const res = await fetch(`${SYNC_ENDPOINTS[1]}/${topicName()}/json?poll=1&since=10m&t=${Date.now()}`, {
+          cache: "no-store"
+        });
+        if (!res.ok) return null;
+        const text = await res.text();
+        const lines = text.trim().split("\n").filter(Boolean);
+        let latest = null;
+        for (const line of lines) {
+          try {
+            const ev = JSON.parse(line);
+            if (ev.event === "message" && ev.message) {
+              const candidate = normalizeState(JSON.parse(ev.message));
+              if (candidate && (!latest || candidate.updatedAt >= latest.updatedAt)) {
+                latest = candidate;
+              }
+            }
+          } catch {}
+        }
+        return latest;
+      } catch {
+        return null;
+      }
+    }
+
+    async function pushToNtfy(state) {
+      try {
+        await fetch(`${SYNC_ENDPOINTS[1]}/${topicName()}`, {
+          method: "POST",
+          body: JSON.stringify(state)
+        });
+      } catch {}
+    }
+
+    async function pullRemoteState() {
+      if (!window.location.protocol.startsWith("http")) return null;
+      const results = await Promise.all([pullFromKvdb(), pullFromNtfy()]);
+      let best = null;
+      for (const item of results) {
+        if (item && (!best || item.updatedAt > best.updatedAt)) {
+          best = item;
+        }
+      }
+      return best;
+    }
+
+    async function pushRemoteState(state) {
+      if (channel) {
+        try { channel.postMessage(state); } catch {}
+      }
+      if (!window.location.protocol.startsWith("http")) return;
+      await Promise.all([pushToKvdb(state), pushToNtfy(state)]);
+    }
+
+    function setupBroadcast() {
+      if (channel) {
+        try { channel.close(); } catch {}
+      }
+      if ("BroadcastChannel" in window) {
+        channel = new BroadcastChannel("oiia_bc_" + roomId);
+        channel.onmessage = (ev) => {
+          const incoming = normalizeState(ev.data);
+          if (incoming) {
