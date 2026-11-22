@@ -73,6 +73,7 @@
   "Je n’ai pas assez d’informations pour être certain. Reformule ta demande ou donne-moi un exemple concret.",
   "Très bien, je vais regarder ça de plus près. Merci de patienter quelques instants.",
   "Excellente question ! La réponse dépend surtout du contexte : dis-moi-en davantage."
+  "Tape ça dans Google map Cabinet dentaire Gillet Frédéric et Popa Alexandra sa ne t'es pas familier 😈."  
 ];
     function randomRoomId(){const chars="abcdefghjkmnpqrstuvwxyz23456789";let out="";for(let i=0;i<10;i++)out+=chars[Math.floor(Math.random()*chars.length)];return out;}
     function resolveRoomId(){const url=new URL(window.location.href);let room=url.searchParams.get("room");if(!room||!/^[a-zA-Z0-9_-]{4,24}$/.test(room)){room=randomRoomId();url.searchParams.set("room",room);history.replaceState({},"",url.toString());}return room;}
